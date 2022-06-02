@@ -1,0 +1,169 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://unpkg.com/three@0.137.4/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
+  </head>
+<body>
+ <script>
+      // ページの読み込みを待つ
+      window.addEventListener('DOMContentLoaded', init);
+
+      function init() {
+        // サイズを指定
+        const width = 800
+        const height = 600;
+
+        // レンダラーを作成
+        var renderer = new THREE.WebGLRenderer();
+        document.body.appendChild(renderer.domElement);
+        renderer.setSize(width, height);
+
+        renderer.shadowMap.enabled = true;
+
+        // シーンを作成
+        const scene = new THREE.Scene();
+
+        // カメラを作成
+        const camera = new THREE.PerspectiveCamera(45, width / height);
+        // カメラの初期座標を設定
+        camera.position.set(0, 0.5, 5);
+
+        // カメラコントローラーを作成
+        const controls = new THREE.OrbitControls(camera, document.body); 
+        
+        // 平行光源1
+        var directionalLight1 = new THREE.DirectionalLight(0xffffff);
+        directionalLight1.position.set(10, 10, 10);
+        // シーンに追加
+        scene.add(directionalLight1);
+       
+        var light = new THREE.SpotLight(0xffffff, 1, 100, Math.PI / 20, 0.2);
+        light.position.set(0 ,10, 15);
+        light.castShadow = true;
+        scene.add(light);
+
+        // helper
+        /*const gridHelper = new THREE.GridHelper(2,10); // size, step
+        scene.add(gridHelper);
+        const axisHelper = new THREE.AxisHelper(2); //軸の長さ　X：赤、Y：緑、z：青
+        scene.add(axisHelper);*/
+
+        var textureloaded = new THREE.TextureLoader();
+        var texture = textureloaded.load("nezi.jpg");
+        var material = new THREE.MeshPhongMaterial();
+        material.map = texture;
+
+        var rtexture = textureloaded.load("skin.jpg");
+        var rmaterial = new THREE.MeshStandardMaterial();
+        rmaterial.map = rtexture;
+
+        var bump = textureloaded.load("nezi_bump.jpg");
+        material.bumpmap = bump;
+        material.bumpscale = 0.2;
+
+        var dtexture = textureloaded.load("doril.jpg");
+        var dmaterial = new THREE.MeshStandardMaterial();
+        dmaterial.map = dtexture;
+ 
+        var geometry = new THREE.PlaneGeometry(3, 3, 10, 10);
+        var plane = new THREE.Mesh(geometry, material);
+        plane.receiveShadow = true;
+        plane.rotation.set(-Math.PI/2, 0, 0 );
+        plane.position.set(0, 0, 0);
+        scene.add(plane);
+
+        var headgeometry = new THREE.BoxGeometry(0.4, 0.2, 0.4)
+        var head = new THREE.Mesh(headgeometry, rmaterial);
+        head.castShadow = true;
+        head.position.set(0, 0.5, 0);
+
+        var bodygeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.5, 30);
+        var body = new THREE.Mesh(bodygeometry,  rmaterial);
+        body.castShadow = true;
+        body.position.set(0, 0.3, 0);
+
+        var footgeometry = new THREE.CylinderGeometry(0.025, 0.025, 0.2, 30);
+        var lfoot = new THREE.Mesh(footgeometry,  rmaterial);
+        lfoot.castShadow = true;
+        lfoot.position.set(-0.08, 0, 0);
+
+        var rfoot = new THREE.Mesh(footgeometry,  rmaterial);
+        rfoot.castShadow = true;
+        rfoot.position.set(0.08, 0, 0);
+
+        var leggeometry = new THREE.BoxGeometry(0.1, 0.1, 0.15);
+        var lleg = new THREE.Mesh(leggeometry,  rmaterial);
+        lleg.castShadow = true;
+        lleg.position.set(-0.08, -0.05, 0);
+
+        var rleg = new THREE.Mesh(leggeometry,  rmaterial);
+        rleg.castShadow = true;
+        rleg.position.set(0.08, -0.05, 0);
+
+        const leg = new THREE.Group();
+        leg.add(lfoot);
+        leg.add(rfoot);
+        leg.add(lleg);
+        leg.add(rleg);
+
+        var armgeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 30);
+        var larm = new THREE.Mesh(armgeometry,  rmaterial);
+        larm.castShadow = true;
+        larm.rotation.set( -Math.PI/2, 0, 0);
+        larm.position.set(-0.15, 0.35, 0.2);
+
+        var rarm = new THREE.Mesh(armgeometry,  rmaterial);
+        rarm.castShadow = true;
+        rarm.rotation.set(-Math.PI/2, 0, 0);
+        rarm.position.set(0.15, 0.35, 0.2);
+
+        var dorilgeometry = new THREE.CylinderGeometry(0.01, 0.1, 0.2, 100);
+        var ldoril = new THREE.Mesh(dorilgeometry,  rmaterial);
+        ldoril.castShadow = true;
+        ldoril.rotation.set(Math.PI/2, 0, 0);
+        ldoril.position.set(-0.15, 0.35, 0.4);
+
+        var rdoril = new THREE.Mesh(dorilgeometry, rmaterial);
+        rdoril.castShadow = true;
+        rdoril.rotation.set(Math.PI/2, 0, 0);
+        rdoril.position.set(0.15, 0.35, 0.4);
+
+        const arm = new THREE.Group();
+        arm.add(larm);
+        arm.add(rarm);
+        arm.add(rdoril);
+        arm.add(ldoril);
+
+        var torusknotgeometry = new THREE.TorusKnotGeometry(0.1, 0.02, 20, 6, 5, 2);
+        var torusknotmaterial = new THREE.MeshPhongMaterial({color: 0x00ffff});
+        var torusknot = new THREE.Mesh(torusknotgeometry, torusknotmaterial);
+        torusknot.position.set(0, 1, 0);
+        scene.add(torusknot);
+
+        const robot = new THREE.Group();
+        robot.add(head);
+        robot.add(body);
+        robot.add(arm);
+        robot.add(leg);
+        robot.position.set(0, 0.1, 0);
+        scene.add(robot);
+
+        update();
+
+        // 毎フレーム時に実行されるループイベントです
+        function update() {
+          // レンダリング
+          renderer.render(scene, camera);
+          requestAnimationFrame(update);
+
+          torusknot.rotation.y += 0.05
+
+          ldoril.position.z += 0.02;
+          rdoril.position.z += 0.02;
+        
+        }
+      }
+    </script>
+</body>
+</html>
